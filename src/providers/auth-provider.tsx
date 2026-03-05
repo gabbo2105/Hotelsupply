@@ -9,6 +9,7 @@ export interface AuthContextValue {
   session: Session | null;
   customer: Customer | null;
   isLoading: boolean;
+  isRecovery: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
   signUp: (
     email: string,
@@ -16,6 +17,8 @@ export interface AuthContextValue {
     meta: Record<string, string>,
   ) => Promise<{ error: string | null; needsConfirmation: boolean }>;
   signOut: () => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<string | null>;
+  clearRecovery: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -33,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRecovery, setIsRecovery] = useState(false);
 
   useEffect(() => {
     // Initial session check
@@ -47,11 +51,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, s) => {
       setSession(s);
+      if (event === "PASSWORD_RECOVERY") {
+        setIsRecovery(true);
+      }
       if (event === "SIGNED_IN" && s) {
         setCustomer(await loadCustomer(s.user.id));
       }
       if (event === "SIGNED_OUT") {
         setCustomer(null);
+        setIsRecovery(false);
       }
     });
 
@@ -95,15 +103,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   }, []);
 
+  const updatePassword = useCallback(
+    async (newPassword: string): Promise<string | null> => {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+      if (error) return error.message;
+      setIsRecovery(false);
+      return null;
+    },
+    [],
+  );
+
+  const clearRecovery = useCallback(() => {
+    setIsRecovery(false);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
         session,
         customer,
         isLoading,
+        isRecovery,
         signIn,
         signUp,
         signOut: signOutFn,
+        updatePassword,
+        clearRecovery,
       }}
     >
       {children}
