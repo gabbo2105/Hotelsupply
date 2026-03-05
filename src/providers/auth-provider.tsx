@@ -8,6 +8,7 @@ import type { Customer } from "@/lib/types";
 export interface AuthContextValue {
   session: Session | null;
   customer: Customer | null;
+  isAdmin: boolean;
   isLoading: boolean;
   isRecovery: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
@@ -128,11 +129,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsRecovery(false);
   }, []);
 
+  const isAdmin =
+    session?.user?.app_metadata?.role === "admin";
+
   return (
     <AuthContext.Provider
       value={{
         session,
         customer,
+        isAdmin,
         isLoading,
         isRecovery,
         signIn,

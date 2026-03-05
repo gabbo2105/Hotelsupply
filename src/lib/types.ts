@@ -123,3 +123,27 @@ export interface CatalogFilters {
   sort: "description" | "price_asc" | "price_desc";
   page: number;
 }
+
+export interface AdminKPIs {
+  total_orders: number;
+  total_revenue: number;
+  total_customers: number;
+  total_products: number;
+  pending_orders: number;
+}
+
+export interface AdminUser {
+  id: string;
+  auth_user_id: string;
+  email: string;
+  company_name: string;
+  vat_number: string;
+  hotel_name: string;
+  hotel_address: string;
+  contact_person: string;
+  contact_role: string;
+  phone: string;
+  created_at: string;
+  updated_at: string;
+  last_sign_in_at: string | null;
+}

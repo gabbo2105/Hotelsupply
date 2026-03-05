@@ -16,13 +16,14 @@ export function DashboardHeader({
   onCartToggle,
   onNewChat,
 }: DashboardHeaderProps) {
-  const { customer, signOut } = useAuth();
+  const { customer, signOut, isAdmin } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
   const isCatalog = pathname.startsWith("/catalog");
   const isChat = pathname === "/chat" || pathname === "/chat/";
   const isOrders = pathname.startsWith("/orders");
+  const isAdminRoute = pathname.startsWith("/admin");
 
   return (
     <header className="flex h-[52px] shrink-0 items-center justify-between border-b bg-background px-4">
@@ -66,6 +67,18 @@ export function DashboardHeader({
           >
             Ordini
           </button>
+          {isAdmin && (
+            <button
+              onClick={() => router.push("/admin")}
+              className={`rounded-lg px-3 py-1.5 text-[0.78rem] font-semibold transition-colors ${
+                isAdminRoute
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              Admin
+            </button>
+          )}
         </nav>
       </div>
 
