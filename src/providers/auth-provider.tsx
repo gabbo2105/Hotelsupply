@@ -33,21 +33,21 @@ async function loadCustomer(uid: string): Promise<Customer | null> {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Detect recovery token in URL hash IMMEDIATELY (before any render/effect)
+  // With implicit flow, Supabase redirects with #access_token=...&type=recovery
+  const [hashHasRecovery] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.location.hash.includes("type=recovery");
+    }
+    return false;
+  });
+
   const [session, setSession] = useState<Session | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isRecovery, setIsRecovery] = useState(false);
+  const [isRecovery, setIsRecovery] = useState(hashHasRecovery);
 
   useEffect(() => {
-    // Detect recovery token in URL hash BEFORE Supabase processes it
-    // This prevents the race condition where SIGNED_IN fires before PASSWORD_RECOVERY
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash;
-      if (hash && hash.includes("type=recovery")) {
-        setIsRecovery(true);
-      }
-    }
-
     // Initial session check
     supabase.auth.getSession().then(async ({ data: { session: s } }) => {
       setSession(s);
