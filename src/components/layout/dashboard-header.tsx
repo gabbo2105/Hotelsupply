@@ -20,6 +20,7 @@ export function DashboardHeader({
   const pathname = usePathname();
   const router = useRouter();
 
+  const isCatalog = pathname.startsWith("/catalog");
   const isChat = pathname === "/chat" || pathname === "/chat/";
   const isOrders = pathname.startsWith("/orders");
 
@@ -35,6 +36,16 @@ export function DashboardHeader({
           </span>
         )}
         <nav className="ml-3 flex gap-0.5">
+          <button
+            onClick={() => router.push("/catalog")}
+            className={`rounded-lg px-3 py-1.5 text-[0.78rem] font-semibold transition-colors ${
+              isCatalog
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            Catalogo
+          </button>
           <button
             onClick={() => router.push("/chat")}
             className={`rounded-lg px-3 py-1.5 text-[0.78rem] font-semibold transition-colors ${
@@ -53,7 +64,7 @@ export function DashboardHeader({
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            I miei ordini
+            Ordini
           </button>
         </nav>
       </div>

@@ -17,3 +17,11 @@ export const GREETING_CHIPS = [
   "Detersivi per la cucina",
   "Confronta prezzi Coca Cola",
 ];
+
+export const CATALOG_PAGE_SIZE = 24;
+
+export const SORT_OPTIONS = [
+  { value: "description", label: "A-Z" },
+  { value: "price_asc", label: "Prezzo crescente" },
+  { value: "price_desc", label: "Prezzo decrescente" },
+] as const;
