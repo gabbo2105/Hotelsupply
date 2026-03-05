@@ -11,7 +11,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   return (
-    <div className="flex flex-col rounded-xl border bg-card p-3 transition-colors hover:border-primary">
+    <div className="group flex flex-col rounded-xl border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-lg">
       <Badge
         variant="secondary"
         className="mb-1.5 w-fit text-2xs font-medium"

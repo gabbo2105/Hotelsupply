@@ -7,22 +7,31 @@ import { fmtPrice, fmtDate } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
+import { ShoppingCart, TrendingUp, Users, Package } from "lucide-react";
 import type { AdminKPIs, Order } from "@/lib/types";
+import type { LucideIcon } from "lucide-react";
 
 function KpiCard({
   label,
   value,
   sub,
+  icon: Icon,
 }: {
   label: string;
   value: string;
   sub?: string;
+  icon: LucideIcon;
 }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </p>
+    <div className="rounded-xl border bg-gradient-to-br from-card to-muted/30 p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="h-4 w-4" />
+        </div>
+      </div>
       <p className="mt-1 text-3xl font-bold text-foreground">{value}</p>
       {sub && (
         <p className="text-xs text-muted-foreground">{sub}</p>
@@ -66,19 +75,23 @@ export default function AdminDashboardPage() {
         <KpiCard
           label="Ordini totali"
           value={kpis?.total_orders.toString() ?? "0"}
+          icon={ShoppingCart}
         />
         <KpiCard
           label="Fatturato"
           value={fmtPrice(kpis?.total_revenue ?? 0)}
+          icon={TrendingUp}
         />
         <KpiCard
           label="Clienti"
           value={kpis?.total_customers.toString() ?? "0"}
+          icon={Users}
         />
         <KpiCard
           label="Prodotti"
           value={kpis?.total_products.toLocaleString("it-IT") ?? "0"}
           sub={`${kpis?.pending_orders ?? 0} ordini in attesa`}
+          icon={Package}
         />
       </div>
 

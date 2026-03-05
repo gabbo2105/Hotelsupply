@@ -21,7 +21,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background from-40% to-transparent px-4 pb-4 pt-3">
-      <div className="pointer-events-auto mx-auto flex max-w-[720px] items-center gap-2 rounded-3xl border bg-background px-4 py-1 shadow-sm transition-all focus-within:border-primary focus-within:shadow-[0_0_0_2px_rgba(212,128,42,0.1)]">
+      <div className="pointer-events-auto mx-auto flex max-w-[720px] items-center gap-2 rounded-full border bg-background/80 px-4 py-1 shadow-lg backdrop-blur-sm transition-all focus-within:border-primary focus-within:shadow-xl focus-within:shadow-primary/10">
         <input
           ref={inputRef}
           type="text"
@@ -37,7 +37,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           onClick={handleSend}
           disabled={disabled || !text.trim()}
           aria-label="Invia messaggio"
-          className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted"
+          className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary text-white transition-all duration-200 hover:scale-110 hover:shadow-lg hover:shadow-primary/40 active:scale-95 disabled:cursor-not-allowed disabled:bg-muted disabled:shadow-none disabled:hover:scale-100"
         >
           <Send className="h-4 w-4" />
         </button>

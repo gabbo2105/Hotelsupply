@@ -26,7 +26,7 @@ export function DashboardHeader({
   const isAdminRoute = pathname.startsWith("/admin");
 
   return (
-    <header className="flex h-[52px] shrink-0 items-center justify-between border-b bg-background px-4">
+    <header className="flex h-[52px] shrink-0 items-center justify-between border-b bg-background/95 px-4 shadow-sm backdrop-blur-sm">
       <div className="flex items-center">
         <div className="text-base font-bold">
           Hotel Supply <span className="text-primary">Pro</span>
@@ -40,9 +40,9 @@ export function DashboardHeader({
           <Link
             href="/catalog"
             aria-current={isCatalog ? "page" : undefined}
-            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-colors ${
+            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
               isCatalog
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
@@ -51,9 +51,9 @@ export function DashboardHeader({
           <Link
             href="/chat"
             aria-current={isChat ? "page" : undefined}
-            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-colors ${
+            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
               isChat
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
@@ -62,9 +62,9 @@ export function DashboardHeader({
           <Link
             href="/orders"
             aria-current={isOrders ? "page" : undefined}
-            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-colors ${
+            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
               isOrders
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
@@ -74,9 +74,9 @@ export function DashboardHeader({
             <Link
               href="/admin"
               aria-current={isAdminRoute ? "page" : undefined}
-              className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-colors ${
+              className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
                 isAdminRoute
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >

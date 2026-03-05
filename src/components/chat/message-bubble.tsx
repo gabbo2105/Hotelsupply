@@ -13,13 +13,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === "user";
 
   return (
-    <div className="border-b py-5 first:pt-0 last:border-b-0">
+    <div className="rounded-lg border-b py-5 transition-colors first:pt-0 last:border-b-0 hover:bg-muted/30">
       <div className="mb-2 flex items-center gap-2">
         <div
-          className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-2xs font-bold ${
+          className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-2xs font-bold shadow-sm ${
             isUser
               ? "bg-muted text-muted-foreground"
-              : "bg-primary text-white"
+              : "bg-gradient-to-br from-primary to-primary/80 text-white"
           }`}
         >
           {isUser ? "Tu" : "HS"}
