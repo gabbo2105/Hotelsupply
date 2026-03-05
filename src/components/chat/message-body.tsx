@@ -130,7 +130,7 @@ export function MessageBody({ text, isStreaming }: MessageBodyProps) {
   return (
     <div
       ref={bodyRef}
-      className="msg-body text-[0.92rem] leading-[1.7]"
+      className="msg-body text-sm leading-[1.7]"
       dangerouslySetInnerHTML={{ __html: renderMarkdown(text) }}
     />
   );

@@ -40,7 +40,7 @@ export function CatalogFiltersPanel({
                   filters.supplier === s.id ? null : s.id,
                 )
               }
-              className={`block w-full rounded-md px-2 py-1 text-left text-[0.78rem] transition-colors ${
+              className={`block w-full rounded-md px-2 py-1 text-left text-2sm transition-colors ${
                 filters.supplier === s.id
                   ? "bg-primary/10 font-semibold text-primary"
                   : "text-foreground hover:bg-muted"
@@ -60,7 +60,7 @@ export function CatalogFiltersPanel({
           <Input
             type="number"
             placeholder="Min"
-            className="h-8 text-[0.8rem]"
+            className="h-8 text-2sm"
             value={filters.priceMin ?? ""}
             onChange={(e) =>
               onFilterChange(
@@ -72,7 +72,7 @@ export function CatalogFiltersPanel({
           <Input
             type="number"
             placeholder="Max"
-            className="h-8 text-[0.8rem]"
+            className="h-8 text-2sm"
             value={filters.priceMax ?? ""}
             onChange={(e) =>
               onFilterChange(
@@ -117,7 +117,7 @@ export function CatalogFiltersPanel({
           <SlidersHorizontal className="h-4 w-4" />
           Filtri
           {hasActiveFilters && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[0.65rem] text-white">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-2xs text-white">
               !
             </span>
           )}

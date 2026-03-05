@@ -19,7 +19,7 @@ export function CategoryBar({
     <div className="flex gap-1.5 overflow-x-auto px-4 py-2 border-b scrollbar-none">
       <button
         onClick={() => onSelect(null)}
-        className={`shrink-0 rounded-full px-3 py-1 text-[0.78rem] font-medium transition-colors ${
+        className={`shrink-0 rounded-full px-3 py-1 text-2sm font-medium transition-colors ${
           selected === null
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -31,7 +31,7 @@ export function CategoryBar({
         <button
           key={cat.id}
           onClick={() => onSelect(selected === cat.id ? null : cat.id)}
-          className={`shrink-0 rounded-full px-3 py-1 text-[0.78rem] font-medium transition-colors ${
+          className={`shrink-0 rounded-full px-3 py-1 text-2sm font-medium transition-colors ${
             selected === cat.id
               ? "bg-primary text-primary-foreground"
               : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"

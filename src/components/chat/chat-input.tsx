@@ -29,18 +29,20 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           placeholder="Scrivi un messaggio..."
+          aria-label="Scrivi un messaggio"
           disabled={disabled}
-          className="flex-1 border-none bg-transparent py-2 text-[0.9rem] outline-none placeholder:text-muted-foreground"
+          className="flex-1 border-none bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
         />
         <button
           onClick={handleSend}
           disabled={disabled || !text.trim()}
+          aria-label="Invia messaggio"
           className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted"
         >
           <Send className="h-4 w-4" />
         </button>
       </div>
-      <p className="pointer-events-auto mx-auto mt-1.5 max-w-[720px] text-center text-[0.68rem] text-muted-foreground">
+      <p className="pointer-events-auto mx-auto mt-1.5 max-w-[720px] text-center text-2xs text-muted-foreground">
         Hotel Supply Pro può commettere errori. Verifica le informazioni
         importanti.
       </p>

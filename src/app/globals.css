@@ -25,6 +25,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -86,6 +87,7 @@
   --chart-3: #16a34a;
   --chart-4: #9333ea;
   --chart-5: #dc2626;
+  --success: #16a34a;
   --sidebar: #f7f7f8;
   --sidebar-foreground: #1a1a1a;
   --sidebar-primary: #d4802a;
@@ -121,6 +123,7 @@
     --chart-3: #22c55e;
     --chart-4: #a855f7;
     --chart-5: #ef4444;
+    --success: #22c55e;
     --sidebar: #2a2a2a;
     --sidebar-foreground: #ececec;
     --sidebar-primary: #d4802a;
@@ -130,6 +133,17 @@
     --sidebar-border: #383838;
     --sidebar-ring: #d4802a;
   }
+}
+
+/* Custom type scale steps between Tailwind defaults */
+@utility text-2xs {
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1rem;
+}
+
+@utility text-2sm {
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.25rem;
 }
 
 @layer base {

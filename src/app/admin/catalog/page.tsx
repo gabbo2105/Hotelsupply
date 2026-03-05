@@ -7,6 +7,7 @@ import { fmtPrice } from "@/lib/format";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import type { CatalogProduct } from "@/lib/types";
 
 function InlinePriceCell({
@@ -48,7 +49,7 @@ function InlinePriceCell({
           if (e.key === "Enter") (e.target as HTMLInputElement).blur();
         }}
         autoFocus
-        className="h-7 w-24 text-[0.82rem]"
+        className="h-7 w-24 text-2sm"
       />
     );
   }
@@ -60,12 +61,12 @@ function InlinePriceCell({
         setValue(product.price.toString());
         setError(null);
       }}
-      className="rounded px-1 py-0.5 text-[0.82rem] font-semibold text-primary transition-colors hover:bg-primary/10"
+      className="rounded px-1 py-0.5 text-2sm font-semibold text-primary transition-colors hover:bg-primary/10"
       title="Clicca per modificare"
     >
       {isSaving ? "..." : fmtPrice(product.price)}
       {error && (
-        <span className="ml-1 text-[0.68rem] text-destructive">{error}</span>
+        <span className="ml-1 text-2xs text-destructive">{error}</span>
       )}
     </button>
   );
@@ -101,7 +102,7 @@ export default function AdminCatalogPage() {
         <select
           value={filters.supplier ?? ""}
           onChange={(e) => setFilter("supplier", e.target.value || null)}
-          className="h-9 rounded-md border bg-background px-3 text-[0.82rem] outline-none focus:ring-2 focus:ring-ring"
+          className="h-9 rounded-md border bg-background px-3 text-2sm outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">Tutti i fornitori</option>
           {suppliers.map((s) => (
@@ -113,7 +114,7 @@ export default function AdminCatalogPage() {
         <select
           value={filters.category ?? ""}
           onChange={(e) => setFilter("category", e.target.value || null)}
-          className="h-9 rounded-md border bg-background px-3 text-[0.82rem] outline-none focus:ring-2 focus:ring-ring"
+          className="h-9 rounded-md border bg-background px-3 text-2sm outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">Tutte le categorie</option>
           {categories.map((c) => (
@@ -122,15 +123,13 @@ export default function AdminCatalogPage() {
             </option>
           ))}
         </select>
-        <span className="ml-auto text-[0.78rem] text-muted-foreground">
+        <span className="ml-auto text-2sm text-muted-foreground">
           {totalCount.toLocaleString("it-IT")} prodotti
         </span>
       </div>
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-muted-foreground">
-          Caricamento...
-        </div>
+        <Spinner />
       ) : (
         <div className="overflow-hidden rounded-xl border">
           <table className="w-full text-sm">
@@ -160,15 +159,15 @@ export default function AdminCatalogPage() {
                   className="border-b transition-colors last:border-0 hover:bg-muted/30"
                 >
                   <td className="max-w-[280px] px-4 py-2.5">
-                    <span className="line-clamp-2 text-[0.82rem] leading-snug">
+                    <span className="line-clamp-2 text-2sm leading-snug">
                       {p.description}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 text-[0.75rem] text-muted-foreground">
+                  <td className="px-4 py-2.5 text-xs text-muted-foreground">
                     {p.supplier_code}
                   </td>
                   <td className="px-4 py-2.5">
-                    <Badge variant="secondary" className="text-[0.7rem]">
+                    <Badge variant="secondary" className="text-xs">
                       {p.supplier_name}
                     </Badge>
                   </td>
@@ -176,7 +175,7 @@ export default function AdminCatalogPage() {
                     <select
                       value={p.category_id ?? ""}
                       onChange={(e) => updateCategory(p.id, e.target.value)}
-                      className="h-7 rounded border bg-background px-2 text-[0.78rem] outline-none"
+                      className="h-7 rounded border bg-background px-2 text-2sm outline-none"
                       disabled={saving === p.id}
                     >
                       {categories.map((c) => (
@@ -186,7 +185,7 @@ export default function AdminCatalogPage() {
                       ))}
                     </select>
                   </td>
-                  <td className="px-4 py-2.5 text-[0.8rem] text-muted-foreground">
+                  <td className="px-4 py-2.5 text-2sm text-muted-foreground">
                     {p.selling_uom}
                   </td>
                   <td className="px-4 py-2.5">
@@ -223,7 +222,7 @@ export default function AdminCatalogPage() {
           >
             &larr; Prec
           </Button>
-          <span className="self-center text-[0.78rem] text-muted-foreground">
+          <span className="self-center text-2sm text-muted-foreground">
             {filters.page} / {totalPages}
           </span>
           <Button

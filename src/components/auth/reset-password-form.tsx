@@ -43,7 +43,7 @@ export function ResetPasswordForm() {
     <div className="flex min-h-screen items-center justify-center bg-secondary p-6">
       <div className="w-full max-w-[420px]">
         <div className="mb-7 text-center">
-          <h1 className="text-[1.4rem] font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight">
             Hotel Supply <span className="text-primary">Pro</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">

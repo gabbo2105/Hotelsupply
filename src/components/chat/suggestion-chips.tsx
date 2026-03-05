@@ -12,7 +12,7 @@ export function SuggestionChips({ chips, onChip }: SuggestionChipsProps) {
         <button
           key={text}
           onClick={() => onChip(text)}
-          className="rounded-full border bg-background px-3.5 py-1.5 text-[0.82rem] text-muted-foreground transition-all hover:border-primary hover:bg-primary/10 hover:text-primary"
+          className="rounded-full border bg-background px-3.5 py-1.5 text-2sm text-muted-foreground transition-all hover:border-primary hover:bg-primary/10 hover:text-primary"
         >
           {text}
         </button>

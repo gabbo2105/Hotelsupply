@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { DashboardHeader } from "./dashboard-header";
 
@@ -27,6 +27,16 @@ export function DashboardLayout({
     setCartOpen(false);
   }, []);
 
+  // Close mobile cart on Escape
+  useEffect(() => {
+    if (!cartOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleCloseCart();
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [cartOpen, handleCloseCart]);
+
   return (
     <AuthGuard>
       <div className="flex h-screen flex-col">
@@ -40,7 +50,7 @@ export function DashboardLayout({
 
           {/* Desktop sidebar (>=900px) */}
           {sidebar && (
-            <aside className="hidden cart:flex w-[300px] shrink-0 flex-col border-l bg-sidebar">
+            <aside className="hidden cart:flex w-[300px] shrink-0 flex-col border-l bg-sidebar" aria-label="Carrello">
               {sidebar}
             </aside>
           )}
@@ -49,10 +59,10 @@ export function DashboardLayout({
           {sidebar && cartOpen && (
             <>
               <div
-                className="cart:hidden fixed inset-0 z-40 bg-black/35"
+                className="cart:hidden fixed inset-0 z-40 bg-black/50"
                 onClick={handleCloseCart}
               />
-              <aside className="cart:hidden fixed bottom-0 right-0 top-[52px] z-50 flex w-[300px] max-w-[85vw] flex-col border-l bg-sidebar shadow-xl">
+              <aside className="cart:hidden fixed bottom-0 right-0 top-[52px] z-50 flex w-[300px] max-w-[85vw] flex-col border-l bg-sidebar shadow-xl" aria-label="Carrello">
                 {sidebar}
               </aside>
             </>

@@ -16,7 +16,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     <div className="border-b py-5 first:pt-0 last:border-b-0">
       <div className="mb-2 flex items-center gap-2">
         <div
-          className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[0.65rem] font-bold ${
+          className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-2xs font-bold ${
             isUser
               ? "bg-muted text-muted-foreground"
               : "bg-primary text-white"
@@ -25,7 +25,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           {isUser ? "Tu" : "HS"}
         </div>
         <div
-          className={`text-[0.8rem] font-semibold ${
+          className={`text-2sm font-semibold ${
             isUser ? "text-muted-foreground" : "text-primary"
           }`}
         >
@@ -37,7 +37,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         <TypingIndicator />
       ) : isUser ? (
         <div
-          className="msg-body text-[0.92rem] leading-[1.7]"
+          className="msg-body text-sm leading-[1.7]"
           dangerouslySetInnerHTML={{
             __html: esc(message.text).replace(/\n/g, "<br>"),
           }}

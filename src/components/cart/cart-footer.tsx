@@ -15,14 +15,14 @@ export function CartFooter({ total, disabled }: CartFooterProps) {
   return (
     <>
       <div className="border-t px-3.5 py-2.5">
-        <div className="mb-2 flex items-center justify-between text-[0.85rem] font-bold">
+        <div className="mb-2 flex items-center justify-between text-sm font-bold">
           <span>Totale</span>
           <span className="text-primary">{fmtPrice(total)}</span>
         </div>
         <button
           onClick={() => setShowPopup(true)}
           disabled={disabled}
-          className="w-full rounded-[10px] bg-primary px-4 py-2 text-[0.82rem] font-semibold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-[10px] bg-primary px-4 py-2 text-2sm font-semibold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Invia richiesta ordine
         </button>

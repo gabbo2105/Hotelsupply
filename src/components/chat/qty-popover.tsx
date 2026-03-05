@@ -47,6 +47,7 @@ export function QtyPopover({ product, onAdded, children }: QtyPopoverProps) {
       >
         <button
           onClick={() => setQty((q) => Math.max(1, q - 1))}
+          aria-label="Diminuisci quantità"
           className="flex h-[26px] w-[26px] items-center justify-center rounded-md border text-sm hover:border-primary hover:text-primary"
         >
           −
@@ -57,16 +58,19 @@ export function QtyPopover({ product, onAdded, children }: QtyPopoverProps) {
           max={999}
           value={qty}
           onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))}
-          className="w-[38px] rounded-md border bg-background text-center text-[0.82rem]"
+          aria-label="Quantità"
+          className="w-[38px] rounded-md border bg-background text-center text-2sm"
         />
         <button
           onClick={() => setQty((q) => q + 1)}
+          aria-label="Aumenta quantità"
           className="flex h-[26px] w-[26px] items-center justify-center rounded-md border text-sm hover:border-primary hover:text-primary"
         >
           +
         </button>
         <button
           onClick={handleConfirm}
+          aria-label="Aggiungi al carrello"
           className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white transition-colors hover:bg-primary/90"
         >
           <ShoppingCart className="h-[15px] w-[15px]" />

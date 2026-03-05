@@ -1,0 +1,16 @@
+{
+  "review_id": "full_frontend_20260305",
+  "target": "src/ (entire frontend)",
+  "focus_areas": ["visual", "usability", "code", "performance"],
+  "context": "B2B e-commerce platform (hotel F&B procurement)",
+  "platform": "responsive (desktop + mobile)",
+  "status": "complete",
+  "started_at": "2026-03-05T12:00:00Z",
+  "issues_found": 28,
+  "severity_counts": {
+    "critical": 4,
+    "major": 9,
+    "minor": 10,
+    "suggestion": 5
+  }
+}

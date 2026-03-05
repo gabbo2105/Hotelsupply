@@ -11,6 +11,7 @@ import { STATUS_LABELS } from "@/lib/constants";
 import type { Order, OrderItem } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 function OrdersList() {
   const { customer } = useAuth();
@@ -37,12 +38,7 @@ function OrdersList() {
     })();
   }, [customer]);
 
-  if (loading)
-    return (
-      <div className="p-8 text-center text-muted-foreground">
-        Caricamento...
-      </div>
-    );
+  if (loading) return <Spinner />;
   if (error)
     return (
       <div className="p-8 text-center text-muted-foreground">{error}</div>
@@ -64,31 +60,31 @@ function OrdersList() {
           color: "bg-muted text-muted-foreground",
         };
         return (
-          <div
+          <button
             key={o.id}
             onClick={() => router.push(`/orders?id=${o.id}`)}
-            className="flex cursor-pointer items-center justify-between rounded-xl border bg-card p-3.5 transition-colors hover:border-primary hover:bg-primary/5"
+            className="flex w-full items-center justify-between rounded-xl border bg-card p-3.5 text-left transition-colors hover:border-primary hover:bg-primary/5"
           >
             <div className="min-w-0">
-              <div className="text-[0.9rem] font-bold">
+              <div className="text-sm font-bold">
                 Ordine <span className="text-primary">#{o.order_number}</span>
               </div>
-              <div className="mt-0.5 text-[0.75rem] text-muted-foreground">
+              <div className="mt-0.5 text-xs text-muted-foreground">
                 {fmtDate(o.created_at)}
               </div>
-              <div className="mt-0.5 text-[0.75rem] text-foreground/70">
+              <div className="mt-0.5 text-xs text-foreground/70">
                 {o.delivery_hotel}
               </div>
             </div>
             <div className="shrink-0 text-right">
-              <div className="text-[0.95rem] font-bold text-primary">
+              <div className="text-base font-bold text-primary">
                 {fmtPrice(o.total)}
               </div>
               <Badge variant="secondary" className={`mt-1 ${st.color}`}>
                 {st.label}
               </Badge>
             </div>
-          </div>
+          </button>
         );
       })}
     </div>
@@ -119,12 +115,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
     })();
   }, [orderId]);
 
-  if (loading)
-    return (
-      <div className="p-8 text-center text-muted-foreground">
-        Caricamento dettaglio...
-      </div>
-    );
+  if (loading) return <Spinner label="Caricamento dettaglio..." />;
   if (!order) return null;
 
   const st = STATUS_LABELS[order.status] ?? {
@@ -163,7 +154,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
         <h4 className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
           Consegna
         </h4>
-        <p className="text-[0.85rem] leading-relaxed text-muted-foreground">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {order.delivery_hotel || "-"}
           <br />
           {order.delivery_address || "-"}
@@ -176,7 +167,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
         <h4 className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
           Fatturazione
         </h4>
-        <p className="text-[0.85rem] leading-relaxed text-muted-foreground">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {order.billing_company || "-"}
           <br />
           P.IVA: {order.billing_vat || "-"}
@@ -188,7 +179,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
           Prodotti
         </h4>
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-[0.85rem]">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 {["Prodotto", "Cod.", "Fornitore", "Q.tà", "Prezzo", "Totale"].map(
@@ -209,11 +200,11 @@ function OrderDetail({ orderId }: { orderId: string }) {
                   <td className="border-b px-2.5 py-2">
                     {it.description}
                     <br />
-                    <span className="text-[0.72rem] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {it.selling_uom}
                     </span>
                   </td>
-                  <td className="border-b px-2.5 py-2 text-[0.75rem] text-muted-foreground">
+                  <td className="border-b px-2.5 py-2 text-xs text-muted-foreground">
                     {it.supplier_code}
                   </td>
                   <td className="border-b px-2.5 py-2">{it.supplier_name}</td>
@@ -249,7 +240,7 @@ function OrderDetail({ orderId }: { orderId: string }) {
           <h4 className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
             Note
           </h4>
-          <p className="text-[0.85rem] text-muted-foreground">{order.notes}</p>
+          <p className="text-sm text-muted-foreground">{order.notes}</p>
         </section>
       )}
     </div>
