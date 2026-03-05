@@ -11,10 +11,10 @@ export function CartSidebar() {
   return (
     <>
       <div className="flex items-center justify-between border-b px-3.5 py-2.5">
-        <h3 className="flex items-center gap-1.5 text-[0.85rem] font-bold">
+        <h3 className="flex items-center gap-1.5 text-sm font-bold">
           Carrello
           <span
-            className={`rounded-full px-1.5 py-0.5 text-[0.68rem] font-bold ${
+            className={`rounded-full px-1.5 py-0.5 text-2xs font-bold ${
               itemCount > 0
                 ? "bg-primary text-white"
                 : "bg-muted text-muted-foreground"

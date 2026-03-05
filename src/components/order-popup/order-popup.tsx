@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -62,13 +63,12 @@ export function OrderPopup({ open, onClose }: OrderPopupProps) {
       clearCart();
       onClose();
 
-      // Could dispatch an event or use a callback for the chat message
-      alert(
+      toast.success(
         `Ordine #${order_number} confermato! Totale: ${(+orderTotal).toFixed(2)} EUR`,
       );
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      alert(`Errore nell'invio dell'ordine: ${msg}`);
+      toast.error(`Errore nell'invio dell'ordine: ${msg}`);
     }
 
     setLoading(false);
@@ -90,7 +90,7 @@ export function OrderPopup({ open, onClose }: OrderPopupProps) {
               Prodotti
             </h4>
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[0.82rem]">
+              <table className="w-full border-collapse text-2sm">
                 <thead>
                   <tr>
                     <th className="border-b px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -116,11 +116,11 @@ export function OrderPopup({ open, onClose }: OrderPopupProps) {
                       <td className="border-b px-2 py-1.5">
                         {c.description}
                         <br />
-                        <span className="text-[0.7rem] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {c.selling_uom}
                         </span>
                       </td>
-                      <td className="border-b px-2 py-1.5 text-[0.78rem]">
+                      <td className="border-b px-2 py-1.5 text-2sm">
                         {c.supplier_name}
                       </td>
                       <td className="border-b px-2 py-1.5 text-center">
@@ -141,7 +141,7 @@ export function OrderPopup({ open, onClose }: OrderPopupProps) {
                     >
                       Totale ordine
                     </td>
-                    <td className="border-t-2 px-2 pt-2 text-[0.95rem] font-bold text-primary">
+                    <td className="border-t-2 px-2 pt-2 text-base font-bold text-primary">
                       {fmtPrice(total)}
                     </td>
                   </tr>
@@ -155,7 +155,7 @@ export function OrderPopup({ open, onClose }: OrderPopupProps) {
             <h4 className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
               Consegna
             </h4>
-            <p className="text-[0.85rem] leading-relaxed text-muted-foreground">
+            <p className="text-sm leading-relaxed text-muted-foreground">
               {customer.hotel_name || "—"}
               <br />
               {customer.hotel_address || "—"}
@@ -169,7 +169,7 @@ export function OrderPopup({ open, onClose }: OrderPopupProps) {
             <h4 className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
               Fatturazione
             </h4>
-            <p className="text-[0.85rem] leading-relaxed text-muted-foreground">
+            <p className="text-sm leading-relaxed text-muted-foreground">
               {customer.company_name || "—"}
               <br />
               P.IVA: {customer.vat_number || "—"}

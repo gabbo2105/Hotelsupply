@@ -19,7 +19,7 @@ export function MessageList({ messages }: MessageListProps) {
   }, [messages]);
 
   return (
-    <div ref={areaRef} className="flex-1 overflow-y-auto">
+    <div ref={areaRef} className="flex-1 overflow-y-auto" aria-live="polite" aria-relevant="additions">
       <div className="mx-auto max-w-[720px] px-4 pb-28 pt-5">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />

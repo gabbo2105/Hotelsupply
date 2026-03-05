@@ -60,7 +60,7 @@ export function LoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-secondary p-6">
       <div className="w-full max-w-[420px]">
         <div className="mb-7 text-center">
-          <h1 className="text-[1.4rem] font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight">
             Hotel Supply <span className="text-primary">Pro</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -88,7 +88,7 @@ export function LoginForm() {
               <p className="mt-2 text-sm text-destructive">{error}</p>
             )}
             {success && (
-              <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+              <p className="mt-2 text-sm text-success">
                 {success}
               </p>
             )}

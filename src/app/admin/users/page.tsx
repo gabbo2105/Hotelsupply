@@ -3,6 +3,7 @@
 import { AdminLayout } from "@/components/layout/admin-layout";
 import { useAdminUsers } from "@/hooks/use-admin-users";
 import { fmtDate } from "@/lib/format";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function AdminUsersPage() {
   const { users, isLoading, error } = useAdminUsers();
@@ -10,16 +11,14 @@ export default function AdminUsersPage() {
   return (
     <AdminLayout title="Utenti Registrati">
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-muted-foreground">
-          Caricamento...
-        </div>
+        <Spinner />
       ) : error ? (
         <div className="py-12 text-center text-sm text-muted-foreground">
           {error}
         </div>
       ) : (
         <>
-          <div className="mb-4 text-[0.78rem] text-muted-foreground">
+          <div className="mb-4 text-2sm text-muted-foreground">
             {users.length} utenti registrati
           </div>
           <div className="overflow-hidden rounded-xl border">
@@ -56,10 +55,10 @@ export default function AdminUsersPage() {
                     <td className="px-4 py-2.5 text-muted-foreground">
                       {u.company_name}
                     </td>
-                    <td className="px-4 py-2.5 text-[0.78rem] text-muted-foreground">
+                    <td className="px-4 py-2.5 text-2sm text-muted-foreground">
                       {u.vat_number}
                     </td>
-                    <td className="px-4 py-2.5 text-[0.82rem]">
+                    <td className="px-4 py-2.5 text-2sm">
                       {u.contact_person}
                       {u.phone && (
                         <span className="ml-1 text-muted-foreground">
@@ -67,13 +66,13 @@ export default function AdminUsersPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-[0.8rem] text-primary">
+                    <td className="px-4 py-2.5 text-2sm text-primary">
                       {u.email}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2.5 text-[0.78rem] text-muted-foreground">
+                    <td className="whitespace-nowrap px-4 py-2.5 text-2sm text-muted-foreground">
                       {u.last_sign_in_at ? fmtDate(u.last_sign_in_at) : "—"}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2.5 text-[0.78rem] text-muted-foreground">
+                    <td className="whitespace-nowrap px-4 py-2.5 text-2sm text-muted-foreground">
                       {fmtDate(u.created_at)}
                     </td>
                   </tr>

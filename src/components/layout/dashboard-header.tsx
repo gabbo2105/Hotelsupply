@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
@@ -18,7 +19,6 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
   const { customer, signOut, isAdmin } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
 
   const isCatalog = pathname.startsWith("/catalog");
   const isChat = pathname === "/chat" || pathname === "/chat/";
@@ -26,65 +26,69 @@ export function DashboardHeader({
   const isAdminRoute = pathname.startsWith("/admin");
 
   return (
-    <header className="flex h-[52px] shrink-0 items-center justify-between border-b bg-background px-4">
+    <header className="flex h-[52px] shrink-0 items-center justify-between border-b bg-background/95 px-4 shadow-sm backdrop-blur-sm">
       <div className="flex items-center">
-        <div className="text-[0.95rem] font-bold">
+        <div className="text-base font-bold">
           Hotel Supply <span className="text-primary">Pro</span>
         </div>
         {customer?.hotel_name && (
-          <span className="ml-2 text-[0.78rem] text-muted-foreground">
+          <span className="ml-2 text-2sm text-muted-foreground">
             {customer.hotel_name}
           </span>
         )}
         <nav className="ml-3 flex gap-0.5">
-          <button
-            onClick={() => router.push("/catalog")}
-            className={`rounded-lg px-3 py-1.5 text-[0.78rem] font-semibold transition-colors ${
+          <Link
+            href="/catalog"
+            aria-current={isCatalog ? "page" : undefined}
+            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
               isCatalog
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             Catalogo
-          </button>
-          <button
-            onClick={() => router.push("/chat")}
-            className={`rounded-lg px-3 py-1.5 text-[0.78rem] font-semibold transition-colors ${
+          </Link>
+          <Link
+            href="/chat"
+            aria-current={isChat ? "page" : undefined}
+            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
               isChat
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             Chat
-          </button>
-          <button
-            onClick={() => router.push("/orders")}
-            className={`rounded-lg px-3 py-1.5 text-[0.78rem] font-semibold transition-colors ${
+          </Link>
+          <Link
+            href="/orders"
+            aria-current={isOrders ? "page" : undefined}
+            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
               isOrders
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             Ordini
-          </button>
+          </Link>
           {isAdmin && (
-            <button
-              onClick={() => router.push("/admin")}
-              className={`rounded-lg px-3 py-1.5 text-[0.78rem] font-semibold transition-colors ${
+            <Link
+              href="/admin"
+              aria-current={isAdminRoute ? "page" : undefined}
+              className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
                 isAdminRoute
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
               Admin
-            </button>
+            </Link>
           )}
         </nav>
       </div>
 
       <div className="flex items-center gap-1.5">
         {customer?.contact_person && (
-          <span className="mr-1 text-[0.8rem] text-muted-foreground">
+          <span className="mr-1 text-2sm text-muted-foreground">
             {customer.contact_person}
           </span>
         )}
@@ -92,11 +96,12 @@ export function DashboardHeader({
         {/* Mobile cart toggle */}
         <button
           onClick={onCartToggle}
+          aria-label="Apri carrello"
           className="cart:hidden relative flex items-center rounded-lg border px-2 py-1.5 text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
         >
           <ShoppingCart className="h-[18px] w-[18px]" />
           {cartCount > 0 && (
-            <span className="absolute -right-1.5 -top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-red-500 text-[0.65rem] font-bold text-white">
+            <span className="absolute -right-1.5 -top-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-destructive text-2xs font-bold text-white">
               {cartCount}
             </span>
           )}

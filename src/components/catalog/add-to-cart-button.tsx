@@ -29,7 +29,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   return (
     <QtyPopover product={productData} onAdded={handleAdded}>
       <button
-        className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-all hover:scale-105 ${
+        className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-all hover:scale-105 active:scale-95 ${
           added
             ? "border-primary bg-primary text-white"
             : "border-border bg-background text-primary hover:border-primary hover:bg-primary hover:text-white"

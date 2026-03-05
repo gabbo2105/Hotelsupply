@@ -6,25 +6,35 @@ import { supabase } from "@/lib/supabase";
 import { fmtPrice, fmtDate } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { ShoppingCart, TrendingUp, Users, Package } from "lucide-react";
 import type { AdminKPIs, Order } from "@/lib/types";
+import type { LucideIcon } from "lucide-react";
 
 function KpiCard({
   label,
   value,
   sub,
+  icon: Icon,
 }: {
   label: string;
   value: string;
   sub?: string;
+  icon: LucideIcon;
 }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
-      <p className="text-[0.75rem] font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 text-[1.8rem] font-bold text-foreground">{value}</p>
+    <div className="rounded-xl border bg-gradient-to-br from-card to-muted/30 p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="h-4 w-4" />
+        </div>
+      </div>
+      <p className="mt-1 text-3xl font-bold text-foreground">{value}</p>
       {sub && (
-        <p className="text-[0.72rem] text-muted-foreground">{sub}</p>
+        <p className="text-xs text-muted-foreground">{sub}</p>
       )}
     </div>
   );
@@ -54,7 +64,7 @@ export default function AdminDashboardPage() {
   if (isLoading) {
     return (
       <AdminLayout title="Dashboard">
-        <div className="text-sm text-muted-foreground">Caricamento...</div>
+        <Spinner />
       </AdminLayout>
     );
   }
@@ -65,24 +75,28 @@ export default function AdminDashboardPage() {
         <KpiCard
           label="Ordini totali"
           value={kpis?.total_orders.toString() ?? "0"}
+          icon={ShoppingCart}
         />
         <KpiCard
           label="Fatturato"
           value={fmtPrice(kpis?.total_revenue ?? 0)}
+          icon={TrendingUp}
         />
         <KpiCard
           label="Clienti"
           value={kpis?.total_customers.toString() ?? "0"}
+          icon={Users}
         />
         <KpiCard
           label="Prodotti"
           value={kpis?.total_products.toLocaleString("it-IT") ?? "0"}
           sub={`${kpis?.pending_orders ?? 0} ordini in attesa`}
+          icon={Package}
         />
       </div>
 
       <div className="mt-8">
-        <h2 className="mb-3 text-[0.85rem] font-bold uppercase tracking-wider text-muted-foreground">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">
           Ordini recenti
         </h2>
         <div className="overflow-hidden rounded-xl border">
@@ -124,7 +138,7 @@ export default function AdminDashboardPage() {
                         {st.label}
                       </Badge>
                     </td>
-                    <td className="px-4 py-2.5 text-[0.8rem] text-muted-foreground">
+                    <td className="px-4 py-2.5 text-2sm text-muted-foreground">
                       {fmtDate(o.created_at)}
                     </td>
                   </tr>

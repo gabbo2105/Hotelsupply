@@ -82,7 +82,7 @@ export function AdminOrderDetailDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-4 text-[0.85rem]">
+        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
               Consegna
@@ -129,7 +129,7 @@ export function AdminOrderDetailDialog({
             <p className="text-sm text-muted-foreground">Caricamento...</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-[0.82rem]">
+              <table className="w-full text-2sm">
                 <thead>
                   <tr>
                     {[
@@ -155,7 +155,7 @@ export function AdminOrderDetailDialog({
                       <td className="border-b px-2.5 py-2">
                         {it.description}
                         <br />
-                        <span className="text-[0.7rem] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {it.selling_uom}
                         </span>
                       </td>
@@ -205,7 +205,7 @@ export function AdminOrderDetailDialog({
                 <button
                   key={s}
                   onClick={() => setSelectedStatus(s)}
-                  className={`rounded-full border px-3 py-1 text-[0.78rem] font-medium transition-colors ${
+                  className={`rounded-full border px-3 py-1 text-2sm font-medium transition-colors ${
                     selectedStatus === s
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-transparent text-muted-foreground hover:border-muted-foreground"

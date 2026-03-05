@@ -8,6 +8,7 @@ import { fmtPrice, fmtDate } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import type { Order, OrderStatus } from "@/lib/types";
 
 const STATUS_TABS: Array<{ value: OrderStatus | "all"; label: string }> = [
@@ -42,7 +43,7 @@ export default function AdminOrdersPage() {
           <button
             key={tab.value}
             onClick={() => setStatusFilter(tab.value)}
-            className={`rounded-full px-3 py-1 text-[0.78rem] font-medium transition-colors ${
+            className={`rounded-full px-3 py-1 text-2sm font-medium transition-colors ${
               statusFilter === tab.value
                 ? "bg-primary text-white"
                 : "border text-muted-foreground hover:border-primary hover:text-primary"
@@ -51,15 +52,13 @@ export default function AdminOrdersPage() {
             {tab.label}
           </button>
         ))}
-        <span className="ml-auto self-center text-[0.75rem] text-muted-foreground">
+        <span className="ml-auto self-center text-xs text-muted-foreground">
           {totalCount} ordini
         </span>
       </div>
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-muted-foreground">
-          Caricamento...
-        </div>
+        <Spinner />
       ) : (
         <div className="overflow-hidden rounded-xl border">
           <table className="w-full text-sm">
@@ -100,7 +99,7 @@ export default function AdminOrdersPage() {
                     <td className="max-w-[180px] truncate px-4 py-2.5">
                       {o.delivery_hotel}
                     </td>
-                    <td className="px-4 py-2.5 text-[0.8rem] text-muted-foreground">
+                    <td className="px-4 py-2.5 text-2sm text-muted-foreground">
                       {o.contact_person}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2.5 font-semibold">
@@ -111,7 +110,7 @@ export default function AdminOrdersPage() {
                         {st.label}
                       </Badge>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2.5 text-[0.8rem] text-muted-foreground">
+                    <td className="whitespace-nowrap px-4 py-2.5 text-2sm text-muted-foreground">
                       {fmtDate(o.created_at)}
                     </td>
                     <td className="px-4 py-2.5">
@@ -151,7 +150,7 @@ export default function AdminOrdersPage() {
           >
             &larr; Prec
           </Button>
-          <span className="self-center text-[0.8rem] text-muted-foreground">
+          <span className="self-center text-2sm text-muted-foreground">
             {page} / {totalPages}
           </span>
           <Button

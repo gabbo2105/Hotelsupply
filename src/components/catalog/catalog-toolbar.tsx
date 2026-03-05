@@ -39,7 +39,7 @@ export function CatalogToolbar({
       <select
         value={sort}
         onChange={(e) => onSortChange(e.target.value)}
-        className="h-9 rounded-md border bg-background px-3 text-[0.82rem] text-foreground outline-none focus:ring-2 focus:ring-ring"
+        className="h-9 rounded-md border bg-background px-3 text-2sm text-foreground outline-none focus:ring-2 focus:ring-ring"
       >
         {SORT_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
@@ -48,7 +48,7 @@ export function CatalogToolbar({
         ))}
       </select>
 
-      <span className="ml-auto text-[0.78rem] text-muted-foreground whitespace-nowrap">
+      <span className="ml-auto text-2sm text-muted-foreground whitespace-nowrap">
         {totalCount.toLocaleString("it-IT")} prodotti
       </span>
     </div>
