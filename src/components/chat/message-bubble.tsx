@@ -1,0 +1,50 @@
+"use client";
+
+import type { ChatMessage } from "@/lib/types";
+import { MessageBody } from "./message-body";
+import { TypingIndicator } from "./typing-indicator";
+import { esc } from "@/lib/format";
+
+interface MessageBubbleProps {
+  message: ChatMessage;
+}
+
+export function MessageBubble({ message }: MessageBubbleProps) {
+  const isUser = message.role === "user";
+
+  return (
+    <div className="border-b py-5 first:pt-0 last:border-b-0">
+      <div className="mb-2 flex items-center gap-2">
+        <div
+          className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[0.65rem] font-bold ${
+            isUser
+              ? "bg-muted text-muted-foreground"
+              : "bg-primary text-white"
+          }`}
+        >
+          {isUser ? "Tu" : "HS"}
+        </div>
+        <div
+          className={`text-[0.8rem] font-semibold ${
+            isUser ? "text-muted-foreground" : "text-primary"
+          }`}
+        >
+          {isUser ? "Tu" : "Hotel Supply Pro"}
+        </div>
+      </div>
+
+      {message.isStreaming && !message.text ? (
+        <TypingIndicator />
+      ) : isUser ? (
+        <div
+          className="msg-body text-[0.92rem] leading-[1.7]"
+          dangerouslySetInnerHTML={{
+            __html: esc(message.text).replace(/\n/g, "<br>"),
+          }}
+        />
+      ) : (
+        <MessageBody text={message.text} isStreaming={message.isStreaming} />
+      )}
+    </div>
+  );
+}

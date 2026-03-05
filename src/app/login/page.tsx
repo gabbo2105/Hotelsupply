@@ -3,20 +3,20 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { LoginForm } from "@/components/auth/login-form";
 
-export default function Home() {
+export default function LoginPage() {
   const { session, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
-      router.replace(session ? "/chat" : "/login");
+    if (!isLoading && session) {
+      router.replace("/chat");
     }
   }, [isLoading, session, router]);
 
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <p className="text-sm text-muted-foreground">Caricamento...</p>
-    </div>
-  );
+  if (isLoading) return null;
+  if (session) return null;
+
+  return <LoginForm />;
 }
