@@ -46,7 +46,7 @@ export function LoginForm() {
     }
     setLoading(true);
     const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + "/login",
+      redirectTo: window.location.origin + "/Hotelsupply/login",
     });
     setLoading(false);
     if (err) {
