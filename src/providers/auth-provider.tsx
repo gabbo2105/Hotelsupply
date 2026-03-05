@@ -39,6 +39,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isRecovery, setIsRecovery] = useState(false);
 
   useEffect(() => {
+    // Detect recovery token in URL hash BEFORE Supabase processes it
+    // This prevents the race condition where SIGNED_IN fires before PASSWORD_RECOVERY
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash && hash.includes("type=recovery")) {
+        setIsRecovery(true);
+      }
+    }
+
     // Initial session check
     supabase.auth.getSession().then(async ({ data: { session: s } }) => {
       setSession(s);
