@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hotel Supply Pro
 
-## Getting Started
+Piattaforma B2B per approvvigionamento F&B alberghiero. Catalogo prodotti, assistente AI, gestione ordini e pannello admin.
 
-First, run the development server:
+**Live:** [gabbo2105.github.io/Hotelsupply](https://gabbo2105.github.io/Hotelsupply/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- **Frontend:** Next.js 16 + Tailwind v4 + shadcn/ui
+- **Backend:** Supabase (PostgreSQL 17, Auth, Edge Functions, pgvector)
+- **AI:** Edge Function con GPT-4o-mini (tool calling, streaming SSE)
+- **Deploy:** GitHub Pages (static export)
+
+## Struttura
+
+```
+src/                      Next.js App Router (frontend)
+supabase/migrations/      18 migration SQL
+supabase/functions/       Edge Functions Deno/TS
+scripts/                  Script utility Python
+docs/                     Documentazione e ADR
+tests/                    Test Deno
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup locale
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.local.example .env.local   # inserisci le chiavi Supabase
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Push su `main` triggera il workflow GitHub Actions che builda e deploya su GitHub Pages.
