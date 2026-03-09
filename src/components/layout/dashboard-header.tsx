@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Sparkles } from "lucide-react";
 
 interface DashboardHeaderProps {
   cartCount: number;
@@ -20,8 +20,11 @@ export function DashboardHeader({
   const { customer, signOut, isAdmin } = useAuth();
   const pathname = usePathname();
 
-  const isCatalog = pathname.startsWith("/catalog");
-  const isChat = pathname === "/chat" || pathname === "/chat/";
+  const isHome =
+    pathname === "/" ||
+    pathname === "/Hotelsupply" ||
+    pathname === "/Hotelsupply/";
+  const isChat = pathname.startsWith("/chat");
   const isOrders = pathname.startsWith("/orders");
   const isAdminRoute = pathname.startsWith("/admin");
 
@@ -38,26 +41,27 @@ export function DashboardHeader({
         )}
         <nav className="ml-3 flex gap-0.5">
           <Link
-            href="/catalog"
-            aria-current={isCatalog ? "page" : undefined}
+            href="/"
+            aria-current={isHome ? "page" : undefined}
             className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
-              isCatalog
+              isHome
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            Catalogo
+            Esplora
           </Link>
           <Link
             href="/chat"
             aria-current={isChat ? "page" : undefined}
-            className={`rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
+            className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-2sm font-semibold transition-all duration-200 ${
               isChat
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            Chat
+            <Sparkles className="h-3 w-3" />
+            AI
           </Link>
           <Link
             href="/orders"

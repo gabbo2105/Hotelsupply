@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseAnonKey } from "@/lib/supabase";
 import { AI_CHAT_URL } from "@/lib/constants";
 import { parseResponse } from "@/lib/cart-actions";
-import { renderMarkdown } from "@/lib/markdown";
 import type { ChatMessage } from "@/lib/types";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
@@ -55,16 +54,25 @@ export function useChat() {
       await flushSync();
 
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        const token = session?.access_token ?? "";
+        // Get token — refresh if expired
+        let token = "";
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          token = session.access_token;
+        } else {
+          const { data: refreshed } = await supabase.auth.refreshSession();
+          token = refreshed.session?.access_token ?? "";
+        }
 
-        const res = await fetch(AI_CHAT_URL, {
+        if (!token) throw new Error("auth");
+        console.log("[chat] token ok, calling", AI_CHAT_URL);
+
+        let res = await fetch(AI_CHAT_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            apikey: supabaseAnonKey,
           },
           body: JSON.stringify({
             chatInput: text.trim(),
@@ -72,21 +80,56 @@ export function useChat() {
           }),
         });
 
+        // Retry once on 401 with refreshed token
+        if (res.status === 401) {
+          const { data: refreshed } = await supabase.auth.refreshSession();
+          const newToken = refreshed.session?.access_token;
+          if (!newToken) throw new Error("auth");
+          res = await fetch(AI_CHAT_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${newToken}`,
+              apikey: supabaseAnonKey,
+            },
+            body: JSON.stringify({
+              chatInput: text.trim(),
+              sessionId: sessionIdRef.current,
+            }),
+          });
+        }
+
+        if (!res.ok) throw new Error("server");
+
         const ct = (res.headers.get("content-type") ?? "").toLowerCase();
 
-        if (
-          ct.includes("text/event-stream") ||
-          ct.includes("application/x-ndjson")
-        ) {
-          // SSE streaming
+        if (ct.includes("text/event-stream")) {
+          // SSE streaming with line buffer for split chunks
           const reader = res.body!.getReader();
           const decoder = new TextDecoder();
           let full = "";
+          let lineBuffer = "";
+
+          const TOOL_LABELS: Record<string, string> = {
+            search_products: "Cerco nel catalogo…",
+            search_products_semantic: "Ricerca semantica…",
+            read_cart: "Leggo il carrello…",
+            get_customer: "Recupero profilo…",
+            send_email: "Invio email…",
+          };
+
+          let statusText = "";
+          // Deduplicate repeated status labels across tool rounds
+          const seenTools = new Set<string>();
 
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            const lines = decoder.decode(value, { stream: true }).split("\n");
+            lineBuffer += decoder.decode(value, { stream: true });
+            const lines = lineBuffer.split("\n");
+            // Keep last (possibly incomplete) line in buffer
+            lineBuffer = lines.pop() ?? "";
+
             for (const ln of lines) {
               const trimmed = ln.trim();
               if (!trimmed || trimmed.startsWith(":")) continue;
@@ -95,25 +138,50 @@ export function useChat() {
                 if (dd === "[DONE]") continue;
                 try {
                   const j = JSON.parse(dd);
-                  full += j.chunk || j.token || j.text || "";
+
+                  // Error event from backend
+                  if (j.error) {
+                    full = "Errore di comunicazione. Riprova.";
+                    continue;
+                  }
+
+                  // Status event — accumulate unique tool labels across rounds
+                  if (j.status === "tools" && Array.isArray(j.tools)) {
+                    for (const t of j.tools as string[]) seenTools.add(t);
+                    statusText = [...seenTools]
+                      .map((t) => TOOL_LABELS[t] || t)
+                      .join(" · ");
+                    setMessages((prev) =>
+                      prev.map((m) =>
+                        m.id === botMsgId
+                          ? { ...m, text: statusText, isStreaming: true }
+                          : m,
+                      ),
+                    );
+                    continue;
+                  }
+
+                  // Content chunk — clear status and append
+                  if (j.chunk || j.token || j.text) {
+                    if (statusText) {
+                      full = "";
+                      statusText = "";
+                    }
+                    full += j.chunk || j.token || j.text || "";
+                  }
                 } catch {
-                  full += dd;
-                }
-              } else if (trimmed.startsWith("{")) {
-                try {
-                  const j = JSON.parse(trimmed);
-                  full += j.chunk || j.token || j.text || j.output || "";
-                } catch {
-                  full += trimmed;
+                  // Malformed JSON — skip (don't append raw data)
                 }
               }
             }
-            // Update streaming message
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === botMsgId ? { ...m, text: full } : m,
-              ),
-            );
+            // Update streaming message with content
+            if (!statusText && full) {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === botMsgId ? { ...m, text: full } : m,
+                ),
+              );
+            }
           }
 
           // Parse final response
@@ -147,15 +215,15 @@ export function useChat() {
             ),
           );
         }
-      } catch {
+      } catch (err) {
+        const msg =
+          err instanceof Error && err.message === "auth"
+            ? "Sessione scaduta. Effettua nuovamente il login."
+            : "Errore di comunicazione. Riprova.";
         setMessages((prev) =>
           prev.map((m) =>
             m.id === botMsgId
-              ? {
-                  ...m,
-                  text: "Errore di comunicazione. Riprova.",
-                  isStreaming: false,
-                }
+              ? { ...m, text: msg, isStreaming: false }
               : m,
           ),
         );

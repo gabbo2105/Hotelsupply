@@ -11,6 +11,8 @@ Fondatore singolo + Claude Code.
 - **AI**: Edge Function `ai-chat` (GPT-4o-mini, streaming SSE, tool calling diretto)
 - **Progetto Supabase**: `wvlqjpmphfhkctupwvvd` (eu-west-1)
 - **Deploy**: GitHub Pages con `output: "export"`, basePath `/Hotelsupply`
+- **URL locale**: `http://localhost:3000/Hotelsupply` (basePath si applica anche in dev)
+- **URL produzione**: `https://<user>.github.io/Hotelsupply`
 
 ## Struttura Monorepo
 
@@ -33,10 +35,10 @@ tests/                → Test Deno per Edge Functions
 
 ## Asset Chiave
 
-- `search_products_hybrid` RPC (FTS italiano + pgvector semantic + fuzzy) — core IP
-- `search_products_catalog` RPC — catalogo sfogliabile con filtri
-- Edge Function `ai-chat` — GPT-4o-mini con 4 tools, streaming SSE
-- 16 categorie prodotto con classificazione keyword-based
+- `search_products_v2` RPC (FTS italiano + trigram GIN, no embeddings) — ricerca diretta istantanea
+- `search_products_hybrid` RPC (FTS + pgvector semantic) — usato solo dall'AI agent per query concettuali
+- Edge Function `ai-chat` v3 — GPT-4o-mini con 5 tools (search_products, search_products_semantic, read_cart, get_customer, send_email)
+- Categorie rimosse (2026-03-06) — archivio in memory/categories-archive.md per rollback
 
 ## Convenzioni
 

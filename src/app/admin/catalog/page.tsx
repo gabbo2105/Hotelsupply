@@ -75,7 +75,6 @@ function InlinePriceCell({
 export default function AdminCatalogPage() {
   const {
     products,
-    categories,
     suppliers,
     totalCount,
     totalPages,
@@ -86,7 +85,6 @@ export default function AdminCatalogPage() {
     setSearch,
     setPage,
     updatePrice,
-    updateCategory,
   } = useAdminCatalog();
 
   return (
@@ -111,18 +109,6 @@ export default function AdminCatalogPage() {
             </option>
           ))}
         </select>
-        <select
-          value={filters.category ?? ""}
-          onChange={(e) => setFilter("category", e.target.value || null)}
-          className="h-9 rounded-md border bg-background px-3 text-2sm outline-none focus:ring-2 focus:ring-ring"
-        >
-          <option value="">Tutte le categorie</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
         <span className="ml-auto text-2sm text-muted-foreground">
           {totalCount.toLocaleString("it-IT")} prodotti
         </span>
@@ -139,7 +125,6 @@ export default function AdminCatalogPage() {
                   "Descrizione",
                   "Codice",
                   "Fornitore",
-                  "Categoria",
                   "UdM",
                   "Prezzo",
                 ].map((h) => (
@@ -171,20 +156,6 @@ export default function AdminCatalogPage() {
                       {p.supplier_name}
                     </Badge>
                   </td>
-                  <td className="px-4 py-2.5">
-                    <select
-                      value={p.category_id ?? ""}
-                      onChange={(e) => updateCategory(p.id, e.target.value)}
-                      className="h-7 rounded border bg-background px-2 text-2sm outline-none"
-                      disabled={saving === p.id}
-                    >
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
                   <td className="px-4 py-2.5 text-2sm text-muted-foreground">
                     {p.selling_uom}
                   </td>
@@ -200,7 +171,7 @@ export default function AdminCatalogPage() {
               {products.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={5}
                     className="px-4 py-8 text-center text-muted-foreground"
                   >
                     Nessun prodotto trovato

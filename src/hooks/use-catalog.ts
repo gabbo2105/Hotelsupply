@@ -5,14 +5,12 @@ import { supabase } from "@/lib/supabase";
 import { CATALOG_PAGE_SIZE } from "@/lib/constants";
 import type {
   CatalogProduct,
-  Category,
   Supplier,
   CatalogFilters,
 } from "@/lib/types";
 
 const DEFAULT_FILTERS: CatalogFilters = {
   search: "",
-  category: null,
   supplier: null,
   priceMin: null,
   priceMax: null,
@@ -23,21 +21,20 @@ const DEFAULT_FILTERS: CatalogFilters = {
 export function useCatalog() {
   const [filters, setFiltersState] = useState<CatalogFilters>(DEFAULT_FILTERS);
   const [products, setProducts] = useState<CatalogProduct[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Load categories + suppliers once
+  // Load suppliers once
   useEffect(() => {
-    Promise.all([
-      supabase.from("categories").select("*").order("sort_order"),
-      supabase.from("suppliers").select("id, name").order("name"),
-    ]).then(([catRes, supRes]) => {
-      setCategories((catRes.data as Category[]) ?? []);
-      setSuppliers((supRes.data as Supplier[]) ?? []);
-    });
+    supabase
+      .from("suppliers")
+      .select("id, name")
+      .order("name")
+      .then(({ data }) => {
+        setSuppliers((data as Supplier[]) ?? []);
+      });
   }, []);
 
   // Fetch products when filters change
@@ -46,9 +43,8 @@ export function useCatalog() {
     const offset = (filters.page - 1) * CATALOG_PAGE_SIZE;
 
     supabase
-      .rpc("search_products_catalog", {
+      .rpc("search_products_v2", {
         search_text: filters.search || null,
-        category_filter: filters.category,
         supplier_filter: filters.supplier,
         price_min: filters.priceMin,
         price_max: filters.priceMax,
@@ -93,7 +89,6 @@ export function useCatalog() {
 
   return {
     products,
-    categories,
     suppliers,
     totalCount,
     totalPages: Math.ceil(totalCount / CATALOG_PAGE_SIZE),

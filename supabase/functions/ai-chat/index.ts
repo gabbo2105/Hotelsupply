@@ -99,9 +99,33 @@ type OpenAIMessage = Record<string, any>;
 // System Prompt
 // ============================================================
 
+function formatItalianDateTime(): string {
+  const d = new Date();
+  // Convert UTC to Europe/Rome (UTC+1, or UTC+2 in DST: last Sun Mar – last Sun Oct)
+  const year = d.getUTCFullYear();
+  const marchLast = new Date(Date.UTC(year, 2, 31));
+  marchLast.setUTCDate(31 - marchLast.getUTCDay()); // last Sunday of March
+  const octLast = new Date(Date.UTC(year, 9, 31));
+  octLast.setUTCDate(31 - octLast.getUTCDay()); // last Sunday of October
+  const isDST = d >= new Date(marchLast.getTime() + 3600000) && d < new Date(octLast.getTime() + 3600000);
+  const offset = isDST ? 2 : 1;
+  const rome = new Date(d.getTime() + offset * 3600000);
+  const giorni = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+  const mesi = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
+  const giorno = giorni[rome.getUTCDay()];
+  const g = rome.getUTCDate();
+  const mese = mesi[rome.getUTCMonth()];
+  const anno = rome.getUTCFullYear();
+  const hh = String(rome.getUTCHours()).padStart(2, "0");
+  const mm = String(rome.getUTCMinutes()).padStart(2, "0");
+  return `${giorno} ${g} ${mese} ${anno}, ${hh}:${mm}`;
+}
+
 function buildSystemPrompt(customer: CustomerRecord): string {
+  const now = formatItalianDateTime();
   return `Sei l'assistente per gli acquisti di Hotel Supply Pro.
 Hai accesso al catalogo prodotti di tutti gli hotel serviti.
+Data e ora attuali: ${now}
 
 Quando l'utente chiede informazioni su prodotti, prezzi o fornitori, usa lo strumento "search_products" per cercare nel database.
 
@@ -606,7 +630,7 @@ async function executeTool(
 /** Parse an OpenAI SSE stream. Returns content + tool_calls. */
 async function consumeOpenAIStream(
   openaiRes: Response,
-  onChunk?: (text: string) => void,
+  onChunk?: (text: string) => void | Promise<void>,
 ): Promise<{ content: string; toolCalls: Array<{ id: string; function: { name: string; arguments: string } }> }> {
   const decoder = new TextDecoder();
   const reader = openaiRes.body!.getReader();
@@ -636,7 +660,7 @@ async function consumeOpenAIStream(
         // Content chunks
         if (delta.content) {
           content += delta.content;
-          onChunk?.(delta.content);
+          await onChunk?.(delta.content);
         }
 
         // Tool call chunks (streamed incrementally)
@@ -802,132 +826,177 @@ Deno.serve(async (req: Request) => {
       content: trimmedInput,
     });
 
-    // --- Tool calling loop (non-streaming) then final streaming response ---
-    for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const completionRes = await fetchWithRetry("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${openaiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages,
-          tools: TOOLS,
-          tool_choice: "auto",
-          stream: false,
-          max_tokens: 4096,
-        }),
-      });
-
-      if (!completionRes.ok) {
-        const errBody = await completionRes.text();
-        log("error", "openai_failed", { status: completionRes.status, body: errBody, round });
-        return jsonError("AI service error", 502, req);
-      }
-
-      const completionData = await completionRes.json();
-      const choice = completionData.choices?.[0];
-      if (!choice) {
-        log("error", "openai_no_choice", { data: completionData });
-        return jsonError("AI service returned no response", 502, req);
-      }
-
-      const assistantMsg = choice.message;
-
-      if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
-        messages.push(assistantMsg);
-
-        await supabase.from("chat_messages").insert({
-          customer_id: customer.id,
-          session_id: trimmedSessionId,
-          role: "assistant",
-          content: assistantMsg.content || null,
-          tool_calls: assistantMsg.tool_calls,
-          model: MODEL,
-        });
-
-        const toolResults = await Promise.all(
-          // deno-lint-ignore no-explicit-any
-          assistantMsg.tool_calls.map(async (tc: any) => {
-            let args = {};
-            try { args = JSON.parse(tc.function.arguments); } catch { /* empty */ }
-            let result: string;
-            try {
-              result = await executeTool(
-                tc.function.name, args, customer as CustomerRecord,
-                trimmedSessionId, supabase, openaiKey, supabaseUrl, serviceRoleKey,
-              );
-            } catch (err) {
-              result = JSON.stringify({ error: String(err) });
-            }
-            return { tool_call_id: tc.id, name: tc.function.name, result };
-          }),
-        );
-
-        for (const tr of toolResults) {
-          messages.push({ role: "tool", tool_call_id: tr.tool_call_id, content: tr.result });
-        }
-        await Promise.all(toolResults.map((tr) =>
-          supabase.from("chat_messages").insert({
-            customer_id: customer.id, session_id: trimmedSessionId,
-            role: "tool", content: tr.result,
-            tool_call_id: tr.tool_call_id, tool_name: tr.name,
-          })
-        ));
-
-        log("info", "tool_round", { round, tools: toolResults.map((t) => t.name) });
-        continue; // Next round for more tools or final answer
-      }
-
-      // Model returned content — we have it but need to stream to client.
-      // Break out of loop and do a final streaming call below.
-      break;
-    }
-
-    // --- Final streaming response to client ---
-    const streamRes = await fetchWithRetry("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${openaiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages,
-        tools: TOOLS,
-        tool_choice: "none",
-        stream: true,
-        max_tokens: 4096,
-      }),
-    });
-
-    if (!streamRes.ok) {
-      const errBody = await streamRes.text();
-      log("error", "openai_stream_failed", { status: streamRes.status, body: errBody });
-      return jsonError("AI service error", 502, req);
-    }
-
-    // Pipe OpenAI stream to client in real-time
+    // --- Open SSE stream to client immediately ---
     const { response: clientResponse, writer, encoder: enc } = createClientStream(req);
-    let fullContent = "";
+
+    const sendSSE = (data: unknown) => writer.write(enc.encode(`data: ${JSON.stringify(data)}\n\n`));
 
     (async () => {
       try {
-        await consumeOpenAIStream(streamRes, (chunk) => {
+        // --- Tool calling loop (non-streaming) with live status events ---
+        let lastNonToolContent: string | null = null;
+        for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+          const completionRes = await fetchWithRetry("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${openaiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: MODEL,
+              messages,
+              tools: TOOLS,
+              tool_choice: "auto",
+              stream: false,
+              max_tokens: 4096,
+            }),
+          });
+
+          if (!completionRes.ok) {
+            const errBody = await completionRes.text();
+            log("error", "openai_failed", { status: completionRes.status, body: errBody, round });
+            await sendSSE({ error: "AI service error" });
+            await writer.write(enc.encode("data: [DONE]\n\n"));
+            await writer.close();
+            return;
+          }
+
+          const completionData = await completionRes.json();
+          const choice = completionData.choices?.[0];
+          if (!choice) {
+            log("error", "openai_no_choice", { data: completionData });
+            await sendSSE({ error: "AI service returned no response" });
+            await writer.write(enc.encode("data: [DONE]\n\n"));
+            await writer.close();
+            return;
+          }
+
+          const assistantMsg = choice.message;
+
+          if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
+            messages.push(assistantMsg);
+
+            // Tell client which tools are being called
+            const toolNames = assistantMsg.tool_calls.map(
+              // deno-lint-ignore no-explicit-any
+              (tc: any) => tc.function.name,
+            );
+            await sendSSE({ status: "tools", tools: toolNames });
+
+            // Save assistant message with tool_calls
+            supabase.from("chat_messages").insert({
+              customer_id: customer.id,
+              session_id: trimmedSessionId,
+              role: "assistant",
+              content: assistantMsg.content || null,
+              tool_calls: assistantMsg.tool_calls,
+              model: MODEL,
+            }).then(() => {});
+
+            const toolResults = await Promise.all(
+              // deno-lint-ignore no-explicit-any
+              assistantMsg.tool_calls.map(async (tc: any) => {
+                let args = {};
+                try { args = JSON.parse(tc.function.arguments); } catch { /* empty */ }
+                let result: string;
+                try {
+                  result = await executeTool(
+                    tc.function.name, args, customer as CustomerRecord,
+                    trimmedSessionId, supabase, openaiKey, supabaseUrl, serviceRoleKey,
+                  );
+                } catch (err) {
+                  result = JSON.stringify({ error: String(err) });
+                }
+                return { tool_call_id: tc.id, name: tc.function.name, result };
+              }),
+            );
+
+            for (const tr of toolResults) {
+              messages.push({ role: "tool", tool_call_id: tr.tool_call_id, content: tr.result });
+            }
+
+            // Save tool results (fire and forget)
+            Promise.all(toolResults.map((tr) =>
+              supabase.from("chat_messages").insert({
+                customer_id: customer.id, session_id: trimmedSessionId,
+                role: "tool", content: tr.result,
+                tool_call_id: tr.tool_call_id, tool_name: tr.name,
+              })
+            )).then(() => {});
+
+            log("info", "tool_round", { round, tools: toolResults.map((t) => t.name) });
+            continue;
+          }
+
+          // No tool calls — save content and skip the extra streaming call
+          lastNonToolContent = assistantMsg.content ?? "";
+          break;
+        }
+
+        // --- Final response ---
+        // If the last non-streaming round already produced content, send it
+        // directly as chunks instead of making a redundant streaming call.
+        if (lastNonToolContent !== null) {
+          // Send content in a single chunk (already complete)
+          if (lastNonToolContent) {
+            await writer.write(enc.encode(`data: ${JSON.stringify({ chunk: lastNonToolContent })}\n\n`));
+          }
+          await writer.write(enc.encode("data: [DONE]\n\n"));
+          await writer.close();
+
+          await supabase.from("chat_messages").insert({
+            customer_id: customer.id, session_id: trimmedSessionId,
+            role: "assistant", content: lastNonToolContent, model: MODEL,
+          });
+          log("info", "chat_ok", { customerId: customer.id, ms: Date.now() - t0, streamed: false });
+          return;
+        }
+
+        // Tool rounds exhausted — stream final response
+        const streamRes = await fetchWithRetry("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openaiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages,
+            tools: TOOLS,
+            tool_choice: "none",
+            stream: true,
+            max_tokens: 4096,
+          }),
+        });
+
+        if (!streamRes.ok) {
+          const errBody = await streamRes.text();
+          log("error", "openai_stream_failed", { status: streamRes.status, body: errBody });
+          await sendSSE({ error: "AI service error" });
+          await writer.write(enc.encode("data: [DONE]\n\n"));
+          await writer.close();
+          return;
+        }
+
+        let fullContent = "";
+        await consumeOpenAIStream(streamRes, async (chunk) => {
           fullContent += chunk;
-          writer.write(enc.encode(`data: ${JSON.stringify({ chunk })}\n\n`));
+          await writer.write(enc.encode(`data: ${JSON.stringify({ chunk })}\n\n`));
         });
         await writer.write(enc.encode("data: [DONE]\n\n"));
-      } catch (err) {
-        log("error", "stream_pipe_error", { error: String(err) });
-      } finally {
         await writer.close();
+
         await supabase.from("chat_messages").insert({
           customer_id: customer.id, session_id: trimmedSessionId,
           role: "assistant", content: fullContent, model: MODEL,
         });
         log("info", "chat_ok", { customerId: customer.id, ms: Date.now() - t0, streamed: true });
+      } catch (err) {
+        log("error", "stream_pipe_error", { error: String(err) });
+        try {
+          await writer.write(enc.encode("data: [DONE]\n\n"));
+          await writer.close();
+        } catch { /* already closed */ }
       }
     })();
 

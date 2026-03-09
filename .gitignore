@@ -51,6 +51,9 @@ venv/
 # Deno
 .deno/
 
+# Supabase temp
+supabase/.temp/
+
 # Data files (large)
 all_products.json
 *.xlsx

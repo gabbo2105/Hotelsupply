@@ -95,18 +95,7 @@ export interface CatalogProduct {
   description: string;
   selling_uom: string;
   price: number;
-  category_id: string;
-  category_name: string;
-  category_slug: string;
   total_count: number;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  icon: string;
-  sort_order: number;
 }
 
 export interface Supplier {
@@ -116,7 +105,6 @@ export interface Supplier {
 
 export interface CatalogFilters {
   search: string;
-  category: string | null;
   supplier: string | null;
   priceMin: number | null;
   priceMax: number | null;
