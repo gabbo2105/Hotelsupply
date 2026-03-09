@@ -8,8 +8,15 @@ import type { ChatMessage } from "@/lib/types";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 
+/** Get a fresh access token — uses context session first, falls back to refreshSession() */
+async function getFreshToken(sessionToken: string | undefined): Promise<string> {
+  if (sessionToken) return sessionToken;
+  const { data } = await supabase.auth.refreshSession();
+  return data.session?.access_token ?? "";
+}
+
 export function useChat() {
-  const { customer } = useAuth();
+  const { customer, session } = useAuth();
   const { applyCartActions, flushSync } = useCart();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -54,18 +61,9 @@ export function useChat() {
       await flushSync();
 
       try {
-        // Get token — refresh if expired
-        let token = "";
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.access_token) {
-          token = session.access_token;
-        } else {
-          const { data: refreshed } = await supabase.auth.refreshSession();
-          token = refreshed.session?.access_token ?? "";
-        }
-
+        // Use token from AuthContext (kept in sync by onAuthStateChange)
+        const token = await getFreshToken(session?.access_token);
         if (!token) throw new Error("auth");
-        console.log("[chat] token ok, calling", AI_CHAT_URL);
 
         let res = await fetch(AI_CHAT_URL, {
           method: "POST",
@@ -232,7 +230,7 @@ export function useChat() {
       setIsStreaming(false);
       setIsBusy(false);
     },
-    [isBusy, flushSync, applyCartActions],
+    [isBusy, session, flushSync, applyCartActions],
   );
 
   const newChat = useCallback(() => {
