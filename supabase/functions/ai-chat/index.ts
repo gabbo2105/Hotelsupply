@@ -730,7 +730,6 @@ Deno.serve(async (req: Request) => {
     (async () => {
       try {
         // --- Tool calling loop (non-streaming) with live status events ---
-        let lastNonToolContent: string | null = null;
         for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
           const completionRes = await fetchWithRetry("https://api.openai.com/v1/chat/completions", {
             method: "POST",
@@ -824,31 +823,11 @@ Deno.serve(async (req: Request) => {
             continue;
           }
 
-          // No tool calls — save content and skip the extra streaming call
-          lastNonToolContent = assistantMsg.content ?? "";
+          // No tool calls — exit loop, stream final response below
           break;
         }
 
-        // --- Final response ---
-        // If the last non-streaming round already produced content, send it
-        // directly as chunks instead of making a redundant streaming call.
-        if (lastNonToolContent !== null) {
-          // Send content in a single chunk (already complete)
-          if (lastNonToolContent) {
-            await writer.write(enc.encode(`data: ${JSON.stringify({ chunk: lastNonToolContent })}\n\n`));
-          }
-          await writer.write(enc.encode("data: [DONE]\n\n"));
-          await writer.close();
-
-          await supabase.from("chat_messages").insert({
-            customer_id: customer.id, session_id: trimmedSessionId,
-            role: "assistant", content: lastNonToolContent, model: MODEL,
-          });
-          log("info", "chat_ok", { customerId: customer.id, ms: Date.now() - t0, streamed: false });
-          return;
-        }
-
-        // Tool rounds exhausted — stream final response
+        // --- Final response: always stream to client ---
         const streamRes = await fetchWithRetry("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: {

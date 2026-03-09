@@ -55,7 +55,7 @@ export default function SearchPage() {
       <div className="relative flex min-h-0 flex-1 flex-col">
         {view.mode === "welcome" ? (
           <>
-            <div className="flex-1 overflow-y-auto pb-24">
+            <div className="flex flex-1 overflow-y-auto pb-24">
               <WelcomeScreen
                 customerName={customer?.contact_person}
               />
