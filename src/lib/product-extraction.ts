@@ -2,7 +2,7 @@ import type { ProductData } from "./types";
 
 const SUPPLIER_RE =
   /\b(?:[A-Z][A-Za-z&'. ]*(?:S\.?P\.?A\.?|S\.?R\.?L\.?|S\.?A\.?S\.?|S\.?N\.?C\.?))\b/;
-const KNOWN_SUPPLIERS = ["BINDI", "MARR", "DORECA", "DAC", "FORNO D'ASOLO", "CENTROFARC"];
+const KNOWN_SUPPLIERS = ["BINDI", "MARR", "DORECA", "DAC", "FORNO D'ASOLO", "CENTROFARC", "MEGADOLCIARIA", "DOMORI"];
 const PRICE_RE = /€\s*(\d+[.,]\d{2})/;
 
 function findSupplier(text: string): string {
@@ -54,8 +54,36 @@ export function extractProductFromText(fullText: string): ProductData | null {
 }
 
 /**
+ * Map header text to a semantic column role.
+ */
+const HEADER_MAP: Record<string, string> = {
+  prodotto: "desc", nome: "desc", descrizione: "desc", articolo: "desc",
+  fornitore: "supplier", brand: "supplier", marca: "supplier",
+  prezzo: "price", "€": "price", costo: "price",
+  "€/unità": "uom", "€/unita": "uom", unità: "uom", unita: "uom", uom: "uom", formato: "uom", confezione: "uom",
+};
+
+function getColumnMap(tr: HTMLTableRowElement): Record<number, string> | null {
+  const table = tr.closest("table");
+  if (!table) return null;
+  const headerRow = table.querySelector("thead tr") ?? table.querySelector("tr:first-child");
+  if (!headerRow) return null;
+  const ths = headerRow.querySelectorAll("th, td");
+  if (ths.length < 3) return null;
+
+  const map: Record<number, string> = {};
+  ths.forEach((th, i) => {
+    const key = (th.textContent ?? "").trim().toLowerCase();
+    for (const [pattern, role] of Object.entries(HEADER_MAP)) {
+      if (key === pattern || key.includes(pattern)) { map[i] = role; break; }
+    }
+  });
+  return Object.keys(map).length >= 2 ? map : null;
+}
+
+/**
  * Extract product data from an HTML table row.
- * Port of extractProductFromRow() from index.html:519-535.
+ * Uses column headers when available, falls back to heuristic matching.
  */
 export function extractProductFromRow(tr: HTMLTableRowElement): ProductData | null {
   const cells = Array.from(tr.querySelectorAll("td"));
@@ -66,6 +94,27 @@ export function extractProductFromRow(tr: HTMLTableRowElement): ProductData | nu
   let price = 0;
   let uom = "";
 
+  // Strategy 1: header-aware extraction
+  const colMap = getColumnMap(tr);
+  if (colMap) {
+    for (let i = 0; i < cells.length; i++) {
+      const text = cells[i].textContent?.trim() ?? "";
+      const role = colMap[i];
+      if (role === "desc" && !desc) desc = text;
+      else if (role === "supplier" && !supplier) supplier = text;
+      else if (role === "price" && !price) {
+        const m = text.match(PRICE_RE);
+        if (m) price = parseFloat(m[1].replace(",", "."));
+      }
+      else if (role === "uom" && !uom) uom = text;
+    }
+    if (desc && price && supplier) {
+      return { description: desc, supplier_name: supplier, price, selling_uom: uom || "pz" };
+    }
+  }
+
+  // Strategy 2: heuristic fallback (original logic)
+  desc = ""; supplier = ""; price = 0; uom = "";
   for (const cell of cells) {
     const text = cell.textContent?.trim() ?? "";
     const priceMatch = text.match(PRICE_RE);
@@ -73,7 +122,6 @@ export function extractProductFromRow(tr: HTMLTableRowElement): ProductData | nu
     if (priceMatch && !price) {
       price = parseFloat(priceMatch[1].replace(",", "."));
     } else if (!desc && text.length > 5 && /[A-Z]/.test(text)) {
-      // Heuristic: description has many uppercase chars
       const upperCount = (text.match(/[A-Z]/g) || []).length;
       if (upperCount >= 3) desc = text;
     }
