@@ -43,6 +43,7 @@ export function ChatThread({ messages, isStreaming }: ChatThreadProps) {
             key={msg.id}
             text={msg.text}
             isStreaming={msg.isStreaming === true}
+            products={msg.products}
           />
         ),
       )}

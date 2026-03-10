@@ -188,7 +188,7 @@ export function useChat() {
           setMessages((prev) =>
             prev.map((m) =>
               m.id === botMsgId
-                ? { ...m, text: parsed.text, isStreaming: false }
+                ? { ...m, text: parsed.text, isStreaming: false, products: parsed.products.length ? parsed.products : undefined }
                 : m,
             ),
           );
@@ -208,7 +208,7 @@ export function useChat() {
           setMessages((prev) =>
             prev.map((m) =>
               m.id === botMsgId
-                ? { ...m, text: parsed.text, isStreaming: false }
+                ? { ...m, text: parsed.text, isStreaming: false, products: parsed.products.length ? parsed.products : undefined }
                 : m,
             ),
           );

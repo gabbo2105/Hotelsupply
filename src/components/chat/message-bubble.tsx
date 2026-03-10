@@ -43,7 +43,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           }}
         />
       ) : (
-        <MessageBody text={message.text} isStreaming={message.isStreaming} />
+        <MessageBody text={message.text} isStreaming={message.isStreaming} products={message.products} />
       )}
     </div>
   );

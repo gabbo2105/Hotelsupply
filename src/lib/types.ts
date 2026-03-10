@@ -65,6 +65,7 @@ export interface ChatMessage {
   role: "user" | "bot";
   text: string;
   isStreaming?: boolean;
+  products?: ProductData[];
 }
 
 export interface CartAction {

@@ -9,6 +9,7 @@ function isOrderMsg(t: string): boolean {
 
 /**
  * Parse agent response text to extract CART_ACTION and PRODUCTS hidden blocks.
+ * Also replaces [[add:N]] tokens with HTML placeholders for cart chip rendering.
  * Returns cleaned text, product suggestions, and cart actions.
  */
 export function parseResponse(text: string): {
@@ -18,7 +19,7 @@ export function parseResponse(text: string): {
 } {
   let cleaned = text;
   const cartActions: CartAction[] = [];
-  const products: ProductData[] = [];
+  let products: ProductData[] = [];
 
   // Extract <!--CART_ACTION[...]-->
   const cartMatch = cleaned.match(/<!--CART_ACTION\[([\s\S]*?)\]-->/);
@@ -39,11 +40,21 @@ export function parseResponse(text: string): {
       cleaned = cleaned.replace(prodMatch[0], "").trim();
       try {
         const parsed = JSON.parse(prodMatch[1]);
-        products.push(...(Array.isArray(parsed) ? parsed : [parsed]));
+        products = Array.isArray(parsed) ? parsed : [parsed];
       } catch {
         // ignore malformed
       }
     }
+  }
+
+  // Replace [[add:N]] tokens with data-attribute placeholders
+  // These get hydrated into React cart chip components by message-body / ai-banner
+  if (products.length > 0) {
+    cleaned = cleaned.replace(/\[\[add:(\d+)\]\]/g, (_match, idxStr) => {
+      const idx = parseInt(idxStr, 10);
+      if (idx < 0 || idx >= products.length) return "";
+      return `<cart-chip data-idx="${idx}"></cart-chip>`;
+    });
   }
 
   return { text: cleaned, products, cartActions };
